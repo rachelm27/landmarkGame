@@ -18,11 +18,16 @@ public class PlayerController : MonoBehaviour
 
     public GameObject playerModel;
 
+    protected Joystick joystick;
+    protected Joybutton joybutton;
+
     // Start is called before the first frame update
     void Start()
     {
         //theRB = GetComponent<Rigidbody>();
         controller = GetComponent<CharacterController>();
+        joystick = FindObjectOfType<Joystick>();
+        joybutton = FindObjectOfType<Joybutton>();
     }
 
     // Update is called once per frame
@@ -38,14 +43,15 @@ public class PlayerController : MonoBehaviour
         //moveDirection = new Vector3(Input.GetAxis("Horizontal") * moveSpeed, moveDirection.y, Input.GetAxis("Vertical") * moveSpeed);
 
         float yStore = moveDirection.y;
-        moveDirection = (transform.forward * Input.GetAxisRaw("Vertical")) + (transform.right * Input.GetAxisRaw("Horizontal"));
+        //!!!!!FOR TESTING WITH ARROW KEYS: REPLACE JOYSTICK CODE WITH Input.GetAxis("Horizontal" or "Vertical")!!!!
+        moveDirection = (transform.forward * joystick.Vertical) + (transform.right * joystick.Horizontal);
         moveDirection = moveDirection.normalized * moveSpeed;
         moveDirection.y = yStore;
 
         if (controller.isGrounded)
         {
             moveDirection.y = 0f;
-            if (Input.GetButtonDown("Jump"))
+            if (joybutton.Pressed || Input.GetButtonDown("Jump"))
             {
                 moveDirection.y = jumpForce;
             }
@@ -55,7 +61,8 @@ public class PlayerController : MonoBehaviour
         controller.Move(moveDirection * Time.deltaTime);
 
         //Move the player in different directions based on camera look direction
-        if (Input.GetAxis("Horizontal") != 0 || Input.GetAxis("Vertical") != 0)
+        //!!!!!FOR TESTING WITH ARROW KEYS: REPLACE JOYSTICK CODE WITH Input.GetAxis("Horizontal" or "Vertical")!!!!
+        if (joystick.Horizontal != 0 || joystick.Vertical != 0)
         {
             transform.rotation = Quaternion.Euler(0f, pivot.rotation.eulerAngles.y, 0f);
             Quaternion newRotation = Quaternion.LookRotation(new Vector3(moveDirection.x, 0f, moveDirection.z));
@@ -63,7 +70,8 @@ public class PlayerController : MonoBehaviour
         }
 
         anim.SetBool("isGrounded", controller.isGrounded);
-        anim.SetFloat("Speed", (Mathf.Abs(Input.GetAxis("Vertical")) + Mathf.Abs(Input.GetAxis("Horizontal"))));
+        //!!!!!FOR TESTING WITH ARROW KEYS: REPLACE JOYSTICK CODE WITH Input.GetAxis("Horizontal" or "Vertical")!!!!
+        anim.SetFloat("Speed", (Mathf.Abs(joystick.Vertical) + Mathf.Abs(joystick.Horizontal)));
 
         if (Input.GetKey(KeyCode.LeftArrow))
         {
